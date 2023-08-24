@@ -1,0 +1,1 @@
+docker run -it --rm -v "$(pwd)":/app -w /app fabric-sdk-py sh -c "bash"

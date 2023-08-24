@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'  # v3 does not support 'extends' yet
+
+networks:
+  fabric-network:
+    external:
+      name: fabric-network
+
+services:
+
+  orderer.example.com:  # There can be multiple orderers
+    extends:
+      file: orderer-base.yaml
+      service: orderer-base
+    container_name: orderer.example.com
+    hostname: orderer.example.com
+    ports:
+      - "7050:7050"
+    volumes:
+    - ./configx/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+    - ./configx/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
+    - ./configx/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls
+    command: orderer start
+    networks:
+    - fabric-network
+
+  peer0.org1.example.com:
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    container_name: peer0.org1.example.com
+    hostname: peer0.org1.example.com
+    environment:
+      - CORE_PEER_ID=peer0.org1.example.com
+      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.org1.example.com:7052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.example.com:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+    volumes:
+        - ./configx/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp:/etc/hyperledger/fabric/msp
+        - ./configx/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 7051:7051
+      - 7052:7052
+    command: peer node start
+    networks:
+    - fabric-network
