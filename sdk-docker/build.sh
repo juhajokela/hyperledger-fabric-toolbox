@@ -1,1 +1,1 @@
-docker build -t fabric-sdk-py .
+docker build -t fabric-sdk-py sdk-docker
